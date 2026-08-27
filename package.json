@@ -1,0 +1,14 @@
+{
+  "name": "adaptaecom-shopee-app",
+  "version": "1.0.0",
+  "description": "App parceiro Shopee Open Platform para a Adaptaecom - autoriza lojas de clientes e coleta dados para relatorios do Manual do Gestor",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.31.6",
+    "@vercel/blob": "^0.27.0",
+    "bcryptjs": "^2.4.3"
+  }
+}

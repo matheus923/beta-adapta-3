@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "functions": {
+    "api/[...slug].js": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/refresh-all",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/flash-sale-check-20h",
+      "schedule": "0 23 * * *"
+    },
+    {
+      "path": "/api/cron/flash-sale-check-22h",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/metrics-daily-check",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/weekly-report",
+      "schedule": "0 14 * * 1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), camera=(), microphone=()" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adaptaecom - Plataforma de contas Shopee</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #171a21;
+    --border: #262b36;
+    --text: #e6e8eb;
+    --muted: #9aa2af;
+    --accent: #ee4d2d; /* laranja Shopee */
+    --ok: #3ecf8e;
+    --warn: #f5a623;
+    --danger: #e5484d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 16px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 12px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  button.danger { background: var(--danger); }
+  button.small { padding: 5px 10px; font-size: 12px; }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  input, select {
+    background: #0f1115;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    width: 100%;
+  }
+  .row { display: flex; gap: 10px; margin-top: 12px; }
+  .row input, .row select { flex: 1; }
+  .field { margin-top: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .link-box {
+    margin-top: 14px;
+    padding: 12px;
+    background: #0f1115;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    word-break: break-all;
+    color: var(--accent);
+    display: none;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: uppercase; }
+  .status-ok { color: var(--ok); }
+  .status-warn { color: var(--warn); }
+  .status-danger { color: var(--danger); }
+  .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+  .name-input { width: 140px; }
+  .badge {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--border); color: var(--muted); text-transform: uppercase;
+  }
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 16px; border-radius: 8px; font-size: 13px; display: none;
+  }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .log-item { font-size: 12px; color: var(--muted); padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .log-item b { color: var(--text); }
+  video { width: 100%; border-radius: 8px; background: #000; margin-top: 10px; }
+  .pergunta-resumo { margin-top: 10px; padding: 10px; background: #0f1115; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+  .etapa-item { padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+  .etapa-item .tipo-badge { font-size: 10px; }
+
+  /* ---- Relatorios (Fase 4) - tema claro proprio, isolado do resto do painel (escuro) ---- */
+  .relatorio-embed {
+    --r-surface: #fcfcfb; --r-page: #f9f9f7; --r-text: #0b0b0b; --r-text2: #52514e;
+    --r-muted: #898781; --r-grid: #e1e0d9; --r-border: rgba(11,11,11,0.10);
+    --r-good: #0ca30c; --r-warn: #fab219; --r-serious: #ec835a; --r-crit: #d03b3b;
+    --r-s1: #2a78d6; --r-s2: #eb6834; --r-s3: #7a8c3a; --r-ia: #4a3aa7;
+    background: var(--r-page); color: var(--r-text); border-radius: 10px; padding: 18px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 14px;
+  }
+  .relatorio-embed .r-tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .relatorio-embed .r-tab { background:var(--r-surface); border:1px solid var(--r-border); border-radius:999px; padding:6px 14px; font-size:12.5px; cursor:pointer; color:var(--r-text2); }
+  .relatorio-embed .r-tab.active { border-color:var(--r-s1); color:var(--r-s1); font-weight:600; }
+  .relatorio-embed .r-stat-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-bottom:6px; }
+  .relatorio-embed .r-tile { background:var(--r-surface); border:1px solid var(--r-border); border-radius:10px; padding:14px 16px; cursor:pointer; }
+  .relatorio-embed .r-tile:hover, .relatorio-embed .r-tile.active { border-color:var(--r-s1); }
+  .relatorio-embed .r-tile .r-label { font-size:12px; color:var(--r-text2); margin-bottom:6px; }
+  .relatorio-embed .r-tile .r-value { font-size:22px; font-weight:600; }
+  .relatorio-embed .r-tile .r-delta { font-size:12px; margin-top:4px; color:var(--r-muted); }
+  .relatorio-embed .r-panel { display:none; background:var(--r-surface); border:1px solid var(--r-border); border-radius:10px; padding:16px 18px; margin:10px 0 20px; }
+  .relatorio-embed .r-panel.open { display:block; }
+  .relatorio-embed .r-chartbox { position:relative; overflow:hidden; }
+  .relatorio-embed .r-tooltip { position:absolute; display:none; pointer-events:none; background:#1a1a18; color:#fff; font-size:12px; padding:7px 10px; border-radius:8px; z-index:20; line-height:1.6; }
+  .relatorio-embed .r-legend { display:flex; gap:14px; margin-top:8px; font-size:12px; color:var(--r-text2); flex-wrap:wrap; }
+  .relatorio-embed .r-legend .k { display:inline-flex; align-items:center; gap:6px; }
+  .relatorio-embed .r-legend .sw { display:inline-block; width:14px; height:2px; border-radius:1px; }
+  .relatorio-embed h3 { font-size:13px; text-transform:uppercase; letter-spacing:0.02em; color:var(--r-text2); margin:18px 0 10px; }
+  .relatorio-embed table { width:100%; border-collapse:collapse; font-size:13px; }
+  .relatorio-embed thead th { text-align:left; font-size:11px; text-transform:uppercase; color:var(--r-muted); padding:8px 10px; border-bottom:1px solid var(--r-grid); }
+  .relatorio-embed tbody td { padding:9px 10px; border-bottom:1px solid var(--r-grid); vertical-align:top; }
+  .relatorio-embed .r-badge { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+  .relatorio-embed .r-badge.good { color:var(--r-good); background:rgba(12,163,12,0.10); }
+  .relatorio-embed .r-badge.warn { color:#8a5c00; background:rgba(250,178,25,0.18); }
+  .relatorio-embed .r-badge.serious { color:#a13e17; background:rgba(236,131,90,0.18); }
+  .relatorio-embed .r-badge.crit { color:var(--r-crit); background:rgba(208,59,59,0.10); }
+  .relatorio-embed .r-card { background:var(--r-surface); border:1px solid var(--r-border); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+  .relatorio-embed .r-ia { background:rgba(74,58,167,0.04); border:1px solid rgba(74,58,167,0.18); border-radius:8px; padding:12px 14px; margin-top:10px; }
+  .relatorio-embed .r-ia .r-ia-head { font-size:12px; font-weight:700; color:var(--r-ia); margin-bottom:8px; }
+  .relatorio-embed .r-ia ol { margin:0; padding-left:18px; font-size:12.5px; }
+  .relatorio-embed .r-ia li { margin-bottom:8px; }
+  .relatorio-embed .r-task-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--r-good); background:rgba(12,163,12,0.10); padding:2px 8px; border-radius:999px; }
+  .relatorio-embed .r-task-badge::before { content:"✓"; }
+  .relatorio-embed .r-rotina-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--r-grid); font-size:13px; }
+  .relatorio-embed .r-rotina-item:last-child { border-bottom:none; }
+  .relatorio-embed .r-empty { color:var(--r-muted); font-size:13px; padding:10px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Plataforma Adaptaecom — Contas Shopee</h1>
+  <div class="subtitle">Acompanhe as contas de clientes conectadas ao Manual do Gestor.</div>
+
+  <!-- LOGIN (sem opcao de cadastro - so quem tem conta criada pelo admin consegue entrar) -->
+  <div class="card" id="loginCard">
+    <h2>Entrar</h2>
+    <div class="field">
+      <label>E-mail</label>
+      <input id="loginEmail" type="email" placeholder="voce@adaptaecom.com" />
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input id="loginPassword" type="password" placeholder="Sua senha" />
+    </div>
+    <div class="row">
+      <button id="btnLogin">Entrar</button>
+    </div>
+    <div style="margin-top:12px; font-size:12px; color: var(--muted);">
+      Nao tem acesso? Peca para o gestor ou lider criar sua conta.
+    </div>
+  </div>
+
+  <!-- PAINEL -->
+  <div id="painel" style="display:none;">
+    <div class="topbar">
+      <div>
+        <span id="userInfo" style="font-size:13px; color: var(--muted);"></span>
+      </div>
+      <button class="secondary" id="btnLogout">Sair</button>
+    </div>
+
+    <!-- TUTORIAL OBRIGATORIO (analista novo) - enquanto nao concluido, so isso aparece -->
+    <div class="card" id="cardTutorialAnalista" style="display:none;">
+      <h2 id="tituloTutorial">Cursinho de boas-vindas</h2>
+      <div id="tutorialWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <!-- GESTOR: minhas tarefas -->
+    <div class="card" id="cardMinhasTarefas" style="display:none;">
+      <h2>Minhas tarefas</h2>
+      <div id="tarefasGestorWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <!-- RELATORIOS (Fase 4) - analista: diario/semanal; gestor: clientes diario/semanal
+         + equipe semanal; lider: mensal. Ver lib/reportEngine.js -->
+    <div class="card" id="cardRelatorios" style="display:none;">
+      <h2>Relatórios</h2>
+      <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+        Diagnóstico e plano de ação segundo o Manual do Gestor. As recomendações abaixo
+        já criam (ou reaproveitam) uma tarefa de verdade para o analista responsável.
+      </div>
+      <div id="relatorioTabsWrap"></div>
+      <div id="relatorioConteudo"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <!-- ADMIN/OWNER -->
+    <!-- EQUIPES -->
+    <div class="card" id="cardEquipesOwner" style="display:none;">
+      <h2>Equipes</h2>
+      <div class="field">
+        <label>Nome da equipe</label>
+        <input id="novaEquipeNome" type="text" placeholder="Ex: Equipe Norte" />
+      </div>
+      <div class="field">
+        <label>Gestor coordenador</label>
+        <select id="novaEquipeAdmin"></select>
+      </div>
+      <div class="row">
+        <button id="btnCriarEquipe">Criar equipe</button>
+      </div>
+      <div id="criarEquipeMsg" style="margin-top:12px; font-size:13px; color: var(--muted);"></div>
+      <div id="listaEquipesWrap" style="margin-top:18px;"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardMinhaEquipe" style="display:none;">
+      <h2 id="tituloMinhaEquipe">Minha equipe</h2>
+      <div id="minhaEquipeWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardCriarUsuario" style="display:none;">
+      <h2>Criar acesso para uma pessoa</h2>
+      <div class="field">
+        <label>Nome</label>
+        <input id="novoUsuarioNome" type="text" placeholder="Nome da pessoa" />
+      </div>
+      <div class="field">
+        <label>E-mail</label>
+        <input id="novoUsuarioEmail" type="email" placeholder="pessoa@email.com" />
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input id="novoUsuarioSenha" type="text" placeholder="Defina uma senha (minimo 8 caracteres)" />
+      </div>
+      <div class="field">
+        <label>Tipo de acesso</label>
+        <select id="novoUsuarioRole">
+          <option value="analyst">Analista</option>
+          <option value="admin">Gestor</option>
+        </select>
+      </div>
+      <div class="row">
+        <button id="btnCriarUsuario">Criar acesso</button>
+      </div>
+      <div id="criarUsuarioMsg" style="margin-top:12px; font-size:13px; color: var(--muted);"></div>
+    </div>
+
+    <div class="card" id="cardContas" style="display:none;">
+      <h2>Contas cadastradas</h2>
+      <div id="contasWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardConectar" style="display:none;">
+      <h2>Conectar nova loja</h2>
+      <div>Clique para gerar o link e envie para o cliente autorizar a loja dele.</div>
+      <button id="btnGerar">Gerar link de autorizacao</button>
+      <div class="link-box" id="linkBox"></div>
+    </div>
+
+    <div class="card" id="cardLojasConectadas">
+      <h2 id="tituloLojas">Lojas conectadas</h2>
+      <div id="tabelaWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardCriarTarefa" style="display:none;">
+      <h2>Criar tarefa manualmente (excecao)</h2>
+      <div class="subtitle" style="margin-bottom:0;">
+        O normal e o relatorio diario criar isso sozinho quando encontrar um problema.
+        Use este formulario so enquanto essa automacao ainda nao estiver no ar, ou para
+        um caso pontual que o relatorio nao pegou.
+      </div>
+      <div class="field">
+        <label>Cliente</label>
+        <select id="novaTarefaShop"></select>
+      </div>
+      <div class="field">
+        <label>Descricao do problema / o que precisa ser feito</label>
+        <input id="novaTarefaDescricao" type="text" placeholder="Ex: ACOS acima do limite, revisar campanha X" />
+      </div>
+      <div class="row">
+        <button id="btnCriarTarefa">Criar tarefa</button>
+      </div>
+    </div>
+
+    <div class="card" id="cardFiscalizacao" style="display:none;">
+      <h2>Tarefas de todos os clientes (fiscalizacao)</h2>
+      <div id="fiscalizacaoWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardMudancasMetricas" style="display:none;">
+      <h2>Mudanças de preço/ROAS detectadas</h2>
+      <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+        Comparação automática diária de preço de anúncio e meta de ROAS de cada loja, por
+        analista. A data mostrada é o dia em que a mudança foi detectada (comparando com o
+        dia anterior), não necessariamente o segundo exato em que foi feita no marketplace.
+        O mesmo resumo também chega por e-mail ao gestor toda segunda-feira.
+      </div>
+      <div id="mudancasMetricasWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardLog" style="display:none;">
+      <h2 id="tituloLog">Log de auditoria</h2>
+      <div id="logWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <!-- PROCESSO SELETIVO (SO O OWNER) -->
+    <div class="card" id="cardCandidatos" style="display:none;">
+      <h2>Candidatos (processo seletivo)</h2>
+      <div style="font-size:12px; color:var(--muted); margin-bottom:10px;">
+        Link para abrir no tablet da Adaptaecom durante a prova presencial (não é para divulgar na internet): <span id="linkCandidato" style="color:var(--accent);"></span>
+      </div>
+      <div id="candidatosWrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+    <div class="card" id="cardConfigTeste" style="display:none;">
+      <h2>Perguntas do teste de aptidão</h2>
+      <div id="perguntasTesteWrap"></div>
+      <div class="row">
+        <input id="novaPerguntaTeste" type="text" placeholder="Nova pergunta do teste" />
+        <button class="secondary" id="btnAddPerguntaTeste">Adicionar</button>
+      </div>
+      <div class="row">
+        <button id="btnSalvarPerguntasTeste">Salvar perguntas</button>
+      </div>
+      <div id="perguntasTesteMsg" style="margin-top:10px; font-size:13px; color:var(--muted);"></div>
+    </div>
+
+    <div class="card" id="cardConfigTutorial" style="display:none;">
+      <h2>Etapas do tutorial (cursinho do analista novo)</h2>
+      <div id="etapasListWrap"><div class="empty">Carregando...</div></div>
+
+      <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+        <div class="field">
+          <label>Tipo de etapa</label>
+          <select id="novaEtapaTipo">
+            <option value="boas-vindas">Boas-vindas (só vídeo)</option>
+            <option value="video-pergunta">Vídeo + resumo + perguntas</option>
+            <option value="ferramenta">Vídeo de uma ferramenta (libera ela)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Título da etapa</label>
+          <input id="novaEtapaTitulo" type="text" placeholder="Ex: Bem-vindo(a) à Adaptaecom" />
+        </div>
+        <div class="field">
+          <label>Vídeo (envie um arquivo ou cole um link)</label>
+          <input id="novaEtapaArquivo" type="file" accept="video/mp4,video/webm,video/quicktime" />
+          <div style="margin-top:6px; font-size:12px; color:var(--muted);" id="uploadStatus"></div>
+          <input id="novaEtapaVideoUrl" type="text" placeholder="ou cole aqui o link do vídeo" style="margin-top:6px;" />
+        </div>
+        <div class="field" id="campoResumo" style="display:none;">
+          <label>Resumo em texto (mostrado junto do vídeo)</label>
+          <textarea id="novaEtapaResumo" style="width:100%; min-height:70px; background:#0f1115; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit;"></textarea>
+        </div>
+        <div class="field" id="campoPerguntas" style="display:none;">
+          <label>Perguntas desta etapa</label>
+          <div id="perguntasEtapaWrap"></div>
+          <div class="row">
+            <input id="novaPerguntaEtapa" type="text" placeholder="Digite uma pergunta e clique em adicionar" />
+            <button class="secondary" id="btnAddPerguntaEtapa">Adicionar</button>
+          </div>
+        </div>
+        <div class="field" id="campoFerramenta" style="display:none;">
+          <label>Qual ferramenta esta etapa libera</label>
+          <select id="novaEtapaFerramenta"></select>
+        </div>
+        <div class="row">
+          <button id="btnCriarEtapa">Adicionar etapa</button>
+        </div>
+        <div id="criarEtapaMsg" style="margin-top:10px; font-size:13px; color:var(--muted);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// Carrega o cliente de upload do Vercel Blob direto de um CDN (ESM), ja que esta pagina
+// e um HTML simples sem empacotador (webpack/vite). So usado pelo admin/owner ao
+// cadastrar um video novo de etapa do tutorial. Ver lib/videoBlob.js para o motivo do
+// upload ser direto do navegador (nao passa pela nossa API).
+import { upload } from 'https://esm.sh/@vercel/blob@0.27.0/client';
+window.__blobUpload = upload;
+</script>
+<script>
+const API = ''; // mesma origem (o app roda tudo no mesmo dominio da Vercel)
+let usuarioAtual = null;
+
+// Escapa texto antes de inserir via innerHTML - fundamental para qualquer conteudo que
+// venha de fora (candidatos inscritos pelo formulario publico, textos cadastrados por
+// admins/gestores, etc.), senao um nome/resposta/titulo malicioso poderia executar
+// script na tela de quem esta olhando (ex.: o owner ao revisar candidatos).
+function esc(valor) {
+  return String(valor === undefined || valor === null ? '' : valor)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+let listaGestores = [];
+let minhasLojas = [];
+let perguntasTesteLocal = [];
+let perguntasEtapaLocal = [];
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2500);
+}
+
+function isAdminOuOwner() {
+  return usuarioAtual && (usuarioAtual.role === 'admin' || usuarioAtual.role === 'owner');
+}
+
+function mostrarLogin() {
+  document.getElementById('loginCard').style.display = 'block';
+  document.getElementById('painel').style.display = 'none';
+}
+
+// Terminologia da plataforma (nomes exibidos na tela, nao muda os valores internos):
+//   owner  -> "Líder"    (dono da operacao, unico)
+//   admin  -> "Gestor"   (responsavel por uma equipe)
+//   analyst-> "Analista" (responsavel pelas contas de clientes)
+function rotuloPapel(role) {
+  if (role === 'owner') return 'Líder';
+  if (role === 'admin') return 'Gestor';
+  return 'Analista';
+}
+
+async function mostrarPainel() {
+  document.getElementById('loginCard').style.display = 'none';
+  document.getElementById('painel').style.display = 'block';
+
+  const meRes = await fetch(`${API}/api/me`);
+  if (meRes.status === 401) { mostrarLogin(); return; }
+  usuarioAtual = await meRes.json();
+
+  const admin = isAdminOuOwner();
+  document.getElementById('userInfo').textContent = `${usuarioAtual.name || usuarioAtual.email} · ${rotuloPapel(usuarioAtual.role)}`;
+
+  // Analista novo: enquanto o tutorial nao estiver concluido, so o cursinho aparece -
+  // nada mais na tela (nem "meus clientes", nem "minhas tarefas").
+  if (usuarioAtual.role === 'analyst') {
+    const tutorialRes = await fetch(`${API}/api/tutorial/estado`);
+    if (tutorialRes.ok) {
+      const tutorialData = await tutorialRes.json();
+      if (!tutorialData.concluido) {
+        document.getElementById('cardTutorialAnalista').style.display = 'block';
+        document.getElementById('cardLojasConectadas').style.display = 'none';
+        renderTutorialAnalista(tutorialData);
+        return; // nao carrega/mostra mais nada ate concluir
+      }
+    }
+  }
+
+  document.getElementById('cardLojasConectadas').style.display = 'block';
+  document.getElementById('cardTutorialAnalista').style.display = 'none';
+  document.getElementById('cardConectar').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardCriarUsuario').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardContas').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardCriarTarefa').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardFiscalizacao').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardMudancasMetricas').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardLog').style.display = admin ? 'block' : 'none';
+  document.getElementById('cardMinhasTarefas').style.display = admin ? 'none' : 'block';
+  document.getElementById('cardRelatorios').style.display = 'block';
+  document.getElementById('cardEquipesOwner').style.display = usuarioAtual.role === 'owner' ? 'block' : 'none';
+  document.getElementById('cardMinhaEquipe').style.display = usuarioAtual.role === 'admin' ? 'block' : 'none';
+  const isOwner = usuarioAtual.role === 'owner';
+  document.getElementById('cardCandidatos').style.display = isOwner ? 'block' : 'none';
+  document.getElementById('cardConfigTeste').style.display = isOwner ? 'block' : 'none';
+  document.getElementById('cardConfigTutorial').style.display = admin ? 'block' : 'none';
+  document.getElementById('tituloLojas').textContent = admin ? 'Todas as lojas conectadas' : 'Meus clientes';
+  document.getElementById('tituloLog').textContent = usuarioAtual.role === 'owner'
+    ? 'Log de auditoria (gestores e analistas)'
+    : 'Log de auditoria (ações dos analistas da minha equipe)';
+
+  if (admin) {
+    const analRes = await fetch(`${API}/api/admin/analysts`);
+    if (analRes.ok) listaGestores = (await analRes.json()).analysts || [];
+    carregarContas();
+    carregarFiscalizacao();
+    carregarMudancasMetricas();
+    carregarLog();
+    if (usuarioAtual.role === 'owner') carregarEquipesOwner();
+    if (usuarioAtual.role === 'admin') carregarMinhaEquipe();
+    if (isOwner) {
+      document.getElementById('linkCandidato').textContent = `${location.origin}/candidato.html`;
+      carregarCandidatos();
+      carregarPerguntasTeste();
+    }
+    carregarEtapasTutorial();
+  } else {
+    carregarMinhasTarefas();
+  }
+
+  carregarLojas();
+  iniciarRelatorios();
+}
+
+// ---- Tutorial obrigatorio (visao do analista) ----
+function renderTutorialAnalista(dados) {
+  const wrap = document.getElementById('tutorialWrap');
+  const titulo = document.getElementById('tituloTutorial');
+
+  if (!dados.etapa) {
+    titulo.textContent = 'Cursinho de boas-vindas';
+    wrap.innerHTML = '<div class="empty">O tutorial ainda esta sendo preparado pela equipe. Volte em breve.</div>';
+    return;
+  }
+
+  const etapa = dados.etapa;
+  titulo.textContent = `${etapa.titulo || 'Etapa do tutorial'} (${dados.etapa_atual_indice + 1} de ${dados.total_etapas})`;
+
+  const perguntasHtml = (etapa.perguntas || []).map((p) => `
+    <div class="field">
+      <label>${esc(p.texto)}</label>
+      <textarea data-pergunta-id="${esc(p.id)}" style="width:100%; min-height:70px; background:#0f1115; border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit;"></textarea>
+    </div>
+  `).join('');
+
+  wrap.innerHTML = `
+    <video controls src="${esc(etapa.video_url)}"></video>
+    ${etapa.texto_resumo ? `<div class="pergunta-resumo">${esc(etapa.texto_resumo)}</div>` : ''}
+    ${perguntasHtml}
+    <div class="row">
+      <button id="btnContinuarTutorial">${(etapa.perguntas || []).length > 0 ? 'Enviar respostas e continuar' : 'Continuar'}</button>
+    </div>
+    <div id="tutorialMsg" style="margin-top:10px; font-size:13px; color:var(--warn);"></div>
+  `;
+  document.getElementById('btnContinuarTutorial').addEventListener('click', enviarRespostaTutorial);
+}
+
+async function enviarRespostaTutorial() {
+  const msg = document.getElementById('tutorialMsg');
+  const btn = document.getElementById('btnContinuarTutorial');
+  const respostas = Array.from(document.querySelectorAll('#tutorialWrap textarea[data-pergunta-id]')).map((el) => ({
+    pergunta_id: el.getAttribute('data-pergunta-id'),
+    resposta: el.value.trim(),
+  }));
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/tutorial/responder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ respostas }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      if (data.concluido) {
+        showToast('Tutorial concluido! Bem-vindo(a) a plataforma.');
+        mostrarPainel();
+      } else {
+        const tutorialRes = await fetch(`${API}/api/tutorial/estado`);
+        const tutorialData = await tutorialRes.json();
+        renderTutorialAnalista(tutorialData);
+      }
+    } else {
+      msg.textContent = data.erro || 'Erro ao enviar respostas.';
+    }
+  } catch (e) {
+    msg.textContent = 'Erro ao enviar respostas.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ---- Candidatos (processo seletivo) - SO O OWNER ----
+let equipesParaAprovacao = [];
+
+async function carregarCandidatos() {
+  const wrap = document.getElementById('candidatosWrap');
+  try {
+    const res = await fetch(`${API}/api/owner/candidatos`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    equipesParaAprovacao = data.teams || [];
+    if (!data.candidatos || data.candidatos.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma inscricao ainda.</div>';
+      return;
+    }
+    const opcoesEquipe = equipesParaAprovacao.length > 0
+      ? equipesParaAprovacao.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')
+      : '<option value="">Nenhuma equipe criada ainda</option>';
+
+    wrap.innerHTML = data.candidatos.map((c) => `
+      <div class="log-item">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><b>${esc(c.nome)}</b> — ${esc(c.email)}${c.telefone ? ` · ${esc(c.telefone)}` : ''}</div>
+          <span class="badge ${c.status === 'aprovado' ? 'status-ok' : c.status === 'rejeitado' ? 'status-danger' : ''}">${esc(c.status)}</span>
+        </div>
+        <div style="margin-top:8px;">
+          ${(c.respostas || []).map((r) => `<div class="pergunta-resumo"><b>${esc(r.pergunta_texto)}</b><br/>${esc(r.resposta)}</div>`).join('')}
+        </div>
+        ${c.status === 'pendente' ? `
+          <div class="row" style="align-items:center;">
+            <select id="equipe_${c.id}" style="flex:1;">${opcoesEquipe}</select>
+            <button class="small" onclick="aprovarCandidato('${c.id}')" ${equipesParaAprovacao.length === 0 ? 'disabled' : ''}>Aprovar e destinar à equipe</button>
+            <button class="small danger" onclick="rejeitarCandidato('${c.id}')">Rejeitar</button>
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar candidatos.</div>';
+  }
+}
+
+async function aprovarCandidato(id) {
+  const select = document.getElementById(`equipe_${id}`);
+  const team_id = select ? select.value : null;
+  if (!team_id) { showToast('Escolha uma equipe para o candidato.'); return; }
+
+  const res = await fetch(`${API}/api/owner/candidatos/aprovar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ candidato_id: id, team_id }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    if (data.email_enviado) {
+      showToast(`Aprovado! E-mail com o acesso enviado para ${data.email}. Equipe: ${data.equipe}.`);
+    } else {
+      alert(`Conta criada!\n\nE-mail: ${data.email}\nSenha: ${data.senha_gerada}\nEquipe: ${data.equipe}\n\nO envio automatico de e-mail nao esta configurado - repasse esses dados por um canal seguro.`);
+    }
+    carregarCandidatos();
+  } else {
+    showToast(data.erro || 'Erro ao aprovar candidato.');
+  }
+}
+
+async function rejeitarCandidato(id) {
+  const res = await fetch(`${API}/api/owner/candidatos/rejeitar`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ candidato_id: id }),
+  });
+  if (res.ok) {
+    showToast('Candidato rejeitado.');
+    carregarCandidatos();
+  } else {
+    showToast('Erro ao rejeitar candidato.');
+  }
+}
+
+// ---- Teste de aptidao de um analista (admin da equipe ou owner) ----
+async function verTesteAptidao(analystId) {
+  try {
+    const res = await fetch(`${API}/api/admin/candidatos/por-analista?analyst_id=${analystId}`);
+    const data = await res.json();
+    if (!res.ok) { showToast(data.erro || 'Sem teste de aptidao para esse analista.'); return; }
+    const texto = (data.respostas || []).map((r) => `${r.pergunta_texto}\n${r.resposta}`).join('\n\n');
+    alert(`Teste de aptidao de ${data.nome} (${data.email}):\n\n${texto || '(sem respostas registradas)'}`);
+  } catch (e) {
+    showToast('Erro ao carregar teste de aptidao.');
+  }
+}
+
+// ---- Perguntas do teste de aptidao - admin/owner ----
+function renderPerguntasTesteLocal() {
+  const wrap = document.getElementById('perguntasTesteWrap');
+  wrap.innerHTML = perguntasTesteLocal.map((p, i) => `
+    <div class="row" style="align-items:center;">
+      <div style="flex:1; font-size:13px;">${p.texto}</div>
+      <button class="small secondary" onclick="removerPerguntaTesteLocal(${i})">Remover</button>
+    </div>
+  `).join('') || '<div class="empty">Nenhuma pergunta cadastrada ainda.</div>';
+}
+
+function removerPerguntaTesteLocal(indice) {
+  perguntasTesteLocal.splice(indice, 1);
+  renderPerguntasTesteLocal();
+}
+
+function adicionarPerguntaTesteLocal() {
+  const input = document.getElementById('novaPerguntaTeste');
+  const texto = input.value.trim();
+  if (!texto) return;
+  perguntasTesteLocal.push({ texto });
+  input.value = '';
+  renderPerguntasTesteLocal();
+}
+
+async function carregarPerguntasTeste() {
+  try {
+    const res = await fetch(`${API}/api/owner/teste-candidato/perguntas`);
+    if (!res.ok) return;
+    const data = await res.json();
+    perguntasTesteLocal = data.perguntas || [];
+    renderPerguntasTesteLocal();
+  } catch (e) {}
+}
+
+async function salvarPerguntasTeste() {
+  const msg = document.getElementById('perguntasTesteMsg');
+  const res = await fetch(`${API}/api/owner/teste-candidato/perguntas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ perguntas: perguntasTesteLocal }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    msg.style.color = 'var(--ok)';
+    msg.textContent = 'Perguntas salvas.';
+    perguntasTesteLocal = data.perguntas;
+    renderPerguntasTesteLocal();
+  } else {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = data.erro || 'Erro ao salvar.';
+  }
+}
+
+// ---- Etapas do tutorial - admin/owner ----
+let ferramentasDisponiveisCache = [];
+
+function rotuloTipoEtapa(tipo) {
+  if (tipo === 'boas-vindas') return 'Boas-vindas';
+  if (tipo === 'video-pergunta') return 'Vídeo + pergunta';
+  if (tipo === 'ferramenta') return 'Libera ferramenta';
+  return tipo;
+}
+
+async function carregarEtapasTutorial() {
+  const wrap = document.getElementById('etapasListWrap');
+  try {
+    const res = await fetch(`${API}/api/admin/tutorial/etapas`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    ferramentasDisponiveisCache = data.ferramentas_disponiveis || [];
+    const selectFerramenta = document.getElementById('novaEtapaFerramenta');
+    selectFerramenta.innerHTML = ferramentasDisponiveisCache.map((f) => `<option value="${esc(f.chave)}">${esc(f.nome)}</option>`).join('');
+
+    if (!data.etapas || data.etapas.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma etapa cadastrada ainda - o tutorial fica "aguardando" para qualquer analista novo ate a primeira etapa ser criada.</div>';
+      return;
+    }
+    wrap.innerHTML = data.etapas.map((e, i) => `
+      <div class="etapa-item">
+        <div style="display:flex; justify-content:space-between;">
+          <div><b>${i + 1}. ${esc(e.titulo)}</b> <span class="badge tipo-badge">${esc(rotuloTipoEtapa(e.tipo))}</span></div>
+          <button class="small secondary" onclick="removerEtapaTutorial('${esc(e.id)}')">Remover</button>
+        </div>
+        ${e.perguntas && e.perguntas.length > 0 ? `<div style="margin-top:6px; color:var(--muted);">${e.perguntas.length} pergunta(s)</div>` : ''}
+        ${e.ferramenta_chave ? `<div style="margin-top:6px; color:var(--muted);">Libera: ${esc(e.ferramenta_chave)}</div>` : ''}
+      </div>
+    `).join('');
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar etapas.</div>';
+  }
+}
+
+function renderPerguntasEtapaLocal() {
+  const wrap = document.getElementById('perguntasEtapaWrap');
+  wrap.innerHTML = perguntasEtapaLocal.map((texto, i) => `
+    <div class="row" style="align-items:center;">
+      <div style="flex:1; font-size:13px;">${texto}</div>
+      <button class="small secondary" onclick="removerPerguntaEtapaLocal(${i})">Remover</button>
+    </div>
+  `).join('');
+}
+
+function removerPerguntaEtapaLocal(indice) {
+  perguntasEtapaLocal.splice(indice, 1);
+  renderPerguntasEtapaLocal();
+}
+
+function adicionarPerguntaEtapaLocal() {
+  const input = document.getElementById('novaPerguntaEtapa');
+  const texto = input.value.trim();
+  if (!texto) return;
+  perguntasEtapaLocal.push(texto);
+  input.value = '';
+  renderPerguntasEtapaLocal();
+}
+
+function atualizarCamposPorTipoEtapa() {
+  const tipo = document.getElementById('novaEtapaTipo').value;
+  document.getElementById('campoResumo').style.display = tipo === 'video-pergunta' ? 'block' : 'none';
+  document.getElementById('campoPerguntas').style.display = tipo === 'video-pergunta' ? 'block' : 'none';
+  document.getElementById('campoFerramenta').style.display = tipo === 'ferramenta' ? 'block' : 'none';
+}
+
+async function enviarArquivoVideoEtapa(file) {
+  const status = document.getElementById('uploadStatus');
+  status.textContent = 'Enviando vídeo, aguarde...';
+  try {
+    const resultado = await window.__blobUpload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/admin/tutorial/upload',
+    });
+    document.getElementById('novaEtapaVideoUrl').value = resultado.url;
+    status.textContent = 'Vídeo enviado com sucesso.';
+    status.style.color = 'var(--ok)';
+  } catch (e) {
+    status.textContent = 'Erro ao enviar o vídeo. Você pode colar um link manualmente abaixo.';
+    status.style.color = 'var(--warn)';
+  }
+}
+
+async function criarEtapaTutorial() {
+  const tipo = document.getElementById('novaEtapaTipo').value;
+  const titulo = document.getElementById('novaEtapaTitulo').value.trim();
+  const video_url = document.getElementById('novaEtapaVideoUrl').value.trim();
+  const texto_resumo = document.getElementById('novaEtapaResumo').value.trim();
+  const ferramenta_chave = document.getElementById('novaEtapaFerramenta').value;
+  const msg = document.getElementById('criarEtapaMsg');
+
+  if (!titulo || !video_url) {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = 'Preencha o título e o vídeo (envie um arquivo ou cole um link).';
+    return;
+  }
+
+  const res = await fetch(`${API}/api/admin/tutorial/etapas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tipo, titulo, video_url, texto_resumo, perguntas: perguntasEtapaLocal, ferramenta_chave }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    msg.style.color = 'var(--ok)';
+    msg.textContent = 'Etapa adicionada.';
+    document.getElementById('novaEtapaTitulo').value = '';
+    document.getElementById('novaEtapaVideoUrl').value = '';
+    document.getElementById('novaEtapaResumo').value = '';
+    document.getElementById('novaEtapaArquivo').value = '';
+    document.getElementById('uploadStatus').textContent = '';
+    perguntasEtapaLocal = [];
+    renderPerguntasEtapaLocal();
+    carregarEtapasTutorial();
+  } else {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = data.erro || 'Erro ao adicionar etapa.';
+  }
+}
+
+async function removerEtapaTutorial(etapaId) {
+  const res = await fetch(`${API}/api/admin/tutorial/etapas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ acao: 'remover', etapa_id: etapaId }),
+  });
+  if (res.ok) {
+    showToast('Etapa removida.');
+    carregarEtapasTutorial();
+  } else {
+    showToast('Erro ao remover etapa.');
+  }
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      mostrarPainel();
+    } else {
+      showToast(data.erro || 'Falha ao entrar.');
+    }
+  } catch (e) {
+    showToast('Erro ao entrar.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function fazerLogout() {
+  await fetch(`${API}/api/logout`, { method: 'POST' });
+  usuarioAtual = null;
+  mostrarLogin();
+}
+
+async function verificarSessaoInicial() {
+  try {
+    const res = await fetch(`${API}/api/me`);
+    if (res.status === 401) {
+      mostrarLogin();
+    } else {
+      mostrarPainel();
+    }
+  } catch (e) {
+    mostrarLogin();
+  }
+}
+
+async function criarUsuario() {
+  const name = document.getElementById('novoUsuarioNome').value.trim();
+  const email = document.getElementById('novoUsuarioEmail').value.trim();
+  const password = document.getElementById('novoUsuarioSenha').value;
+  const role = document.getElementById('novoUsuarioRole').value;
+  const btn = document.getElementById('btnCriarUsuario');
+  const msg = document.getElementById('criarUsuarioMsg');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/admin/create-user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.style.color = 'var(--ok)';
+      msg.textContent = 'Conta criada! Combine o e-mail e a senha com a pessoa por um canal seguro.';
+      document.getElementById('novoUsuarioNome').value = '';
+      document.getElementById('novoUsuarioEmail').value = '';
+      document.getElementById('novoUsuarioSenha').value = '';
+      carregarContas();
+      if (role === 'analyst') {
+        const analRes = await fetch(`${API}/api/admin/analysts`);
+        if (analRes.ok) listaGestores = (await analRes.json()).analysts || [];
+      }
+    } else {
+      msg.style.color = 'var(--warn)';
+      msg.textContent = data.erro || 'Falha ao criar acesso.';
+    }
+  } catch (e) {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = 'Erro ao criar acesso.';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function alternarConta(userId, ativarPara) {
+  const res = await fetch(`${API}/api/admin/toggle-user`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, active: ativarPara }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    showToast(ativarPara ? 'Conta reativada.' : 'Conta desativada.');
+    carregarContas();
+  } else {
+    showToast(data.erro || 'Falha ao atualizar conta.');
+  }
+}
+
+async function carregarContas() {
+  const wrap = document.getElementById('contasWrap');
+  try {
+    const res = await fetch(`${API}/api/admin/users`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    if (!data.users || data.users.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma conta ainda.</div>';
+      return;
+    }
+    const rows = data.users.map(u => `
+      <tr>
+        <td>${u.name || '-'}<br><span style="color:var(--muted); font-size:12px;">${u.email}</span></td>
+        <td><span class="badge">${rotuloPapel(u.role)}</span></td>
+        <td class="${u.active ? 'status-ok' : 'status-danger'}">${u.active ? 'Ativa' : 'Desativada'}</td>
+        <td>
+          <button class="small ${u.active ? 'danger' : 'secondary'}" onclick="alternarConta('${u.id}', ${!u.active})">
+            ${u.active ? 'Desativar' : 'Reativar'}
+          </button>
+          ${u.role === 'analyst' ? `<button class="small secondary" onclick="verTesteAptidao('${u.id}')">Ver teste de aptidão</button>` : ''}
+        </td>
+      </tr>
+    `).join('');
+    wrap.innerHTML = `
+      <table>
+        <thead><tr><th>Pessoa</th><th>Papel</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar contas.</div>';
+  }
+}
+
+async function gerarLink() {
+  const btn = document.getElementById('btnGerar');
+  btn.disabled = true;
+  btn.textContent = 'Gerando...';
+  try {
+    const res = await fetch(`${API}/api/authorize`);
+    if (res.status === 401) { mostrarLogin(); return; }
+    const data = await res.json();
+    const box = document.getElementById('linkBox');
+    box.style.display = 'block';
+    box.innerHTML = `<a href="${data.auth_url}" target="_blank" style="color: inherit;">${data.auth_url}</a>`;
+    navigator.clipboard?.writeText(data.auth_url).catch(() => {});
+    showToast('Link copiado! Envie para o cliente.');
+  } catch (e) {
+    showToast('Erro ao gerar o link.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gerar link de autorizacao';
+  }
+}
+
+async function salvarNome(shopId, input) {
+  const name = input.value.trim();
+  if (!name) return;
+  await fetch(`${API}/api/shops`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ shop_id: shopId, name }),
+  });
+  showToast('Nome salvo.');
+}
+
+async function salvarGestor(shopId, select) {
+  await fetch(`${API}/api/admin/assign`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ shop_id: shopId, analyst_id: select.value }),
+  });
+  showToast('Analista atualizado.');
+}
+
+function montarSelectGestores(shopId, gestorAtualId) {
+  const opcoes = ['<option value="">— sem analista —</option>']
+    .concat(listaGestores.map(a =>
+      `<option value="${a.id}" ${a.id === gestorAtualId ? 'selected' : ''}>${a.name || a.email}</option>`
+    ));
+  return `<select onchange="salvarGestor('${shopId}', this)">${opcoes.join('')}</select>`;
+}
+
+async function carregarLojas() {
+  const wrap = document.getElementById('tabelaWrap');
+  try {
+    const res = await fetch(`${API}/api/shops`);
+    if (res.status === 401) { mostrarLogin(); return; }
+    const data = await res.json();
+    minhasLojas = data.shops || [];
+
+    const seletorTarefa = document.getElementById('novaTarefaShop');
+    if (seletorTarefa) {
+      seletorTarefa.innerHTML = minhasLojas.map(s => `<option value="${s.shop_id}">${s.nome || s.shop_id}</option>`).join('');
+    }
+
+    if (minhasLojas.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma loja conectada ainda.</div>';
+      return;
+    }
+
+    const admin = isAdminOuOwner();
+    const rows = minhasLojas.map(s => `
+      <tr>
+        <td>${s.shop_id}</td>
+        <td>${admin
+          ? `<input class="name-input" placeholder="Nome do cliente" value="${s.nome || ''}" onchange="salvarNome('${s.shop_id}', this)" />`
+          : (s.nome || '-')}
+        </td>
+        ${admin ? `<td>${montarSelectGestores(s.shop_id, s.analista?.id)}</td>` : ''}
+        <td class="${s.status.includes('conectada') ? 'status-ok' : 'status-warn'}">${s.status}</td>
+        <td>${s.atualizado_em ? new Date(s.atualizado_em).toLocaleString('pt-BR') : '-'}</td>
+      </tr>
+    `).join('');
+
+    wrap.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Shop ID</th><th>Cliente</th>${admin ? '<th>Analista</th>' : ''}<th>Status</th><th>Ultima atualizacao</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar as lojas.</div>';
+  }
+}
+
+// ---- Tarefas (visao do gestor) ----
+async function carregarMinhasTarefas() {
+  const wrap = document.getElementById('tarefasGestorWrap');
+  const lojasRes = await fetch(`${API}/api/shops`);
+  const lojasData = await lojasRes.json();
+  const lojas = lojasData.shops || [];
+
+  if (lojas.length === 0) {
+    wrap.innerHTML = '<div class="empty">Voce ainda nao tem clientes atribuidos.</div>';
+    return;
+  }
+
+  let todasTarefas = [];
+  for (const loja of lojas) {
+    const res = await fetch(`${API}/api/tasks?shop_id=${loja.shop_id}`);
+    if (res.ok) {
+      const data = await res.json();
+      todasTarefas = todasTarefas.concat((data.tasks || []).map(t => ({ ...t, clienteNome: loja.nome || loja.shop_id })));
+    }
+  }
+
+  if (todasTarefas.length === 0) {
+    wrap.innerHTML = '<div class="empty">Nenhuma tarefa no momento.</div>';
+    return;
+  }
+
+  todasTarefas.sort((a, b) => (a.status === b.status ? b.created_at - a.created_at : a.status === 'pending' ? -1 : 1));
+
+  wrap.innerHTML = todasTarefas.map(t => `
+    <div class="log-item" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <b>${t.clienteNome}</b> — ${t.description}
+        <div style="color:var(--muted);">
+          ${new Date(t.created_at).toLocaleString('pt-BR')}
+          ${t.status === 'pending'
+            ? ` · <span class="${t.dias_pendente > 7 ? 'status-danger' : 'status-warn'}">pendente ha ${t.dias_pendente} dia(s)</span>`
+            : ''}
+        </div>
+      </div>
+      ${t.status === 'pending'
+        ? `<button class="small" onclick="concluirTarefa('${t.id}')">Concluir</button>`
+        : `<span class="status-ok">Concluida</span>`}
+    </div>
+  `).join('');
+}
+
+async function concluirTarefa(taskId) {
+  const res = await fetch(`${API}/api/tasks/complete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ task_id: taskId }),
+  });
+  if (res.ok) {
+    showToast('Tarefa concluida.');
+    carregarMinhasTarefas();
+  } else {
+    showToast('Erro ao concluir tarefa.');
+  }
+}
+
+// ---- Tarefas (criacao e fiscalizacao - admin/owner) ----
+async function criarTarefa() {
+  const shop_id = document.getElementById('novaTarefaShop').value;
+  const description = document.getElementById('novaTarefaDescricao').value.trim();
+  if (!shop_id || !description) { showToast('Escolha o cliente e descreva a tarefa.'); return; }
+
+  const res = await fetch(`${API}/api/tasks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ shop_id, description }),
+  });
+  if (res.ok) {
+    document.getElementById('novaTarefaDescricao').value = '';
+    showToast('Tarefa criada.');
+    carregarFiscalizacao();
+  } else {
+    showToast('Erro ao criar tarefa.');
+  }
+}
+
+async function carregarFiscalizacao() {
+  const wrap = document.getElementById('fiscalizacaoWrap');
+  try {
+    const res = await fetch(`${API}/api/admin/tasks-overview`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    if (!data.tarefas || data.tarefas.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma tarefa criada ainda.</div>';
+      return;
+    }
+    const rows = data.tarefas.map(t => `
+      <tr>
+        <td>${esc(t.cliente)}</td>
+        <td>${esc(t.gestor)}</td>
+        <td>${esc(t.description)}</td>
+        <td class="${t.status === 'done' ? 'status-ok' : (t.atrasada ? 'status-danger' : 'status-warn')}">
+          ${t.status === 'done' ? 'Concluida' : (t.atrasada ? `Atrasada (${t.dias_pendente}d)` : `Pendente (${t.dias_pendente}d)`)}
+        </td>
+        <td>${new Date(t.created_at).toLocaleDateString('pt-BR')}</td>
+      </tr>
+    `).join('');
+    wrap.innerHTML = `
+      <table>
+        <thead><tr><th>Cliente</th><th>Analista</th><th>Tarefa</th><th>Status (dias pendente)</th><th>Criada em</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar tarefas.</div>';
+  }
+}
+
+// ---- Mudancas de preco/ROAS detectadas automaticamente (checagem diaria) ----
+async function carregarMudancasMetricas() {
+  const wrap = document.getElementById('mudancasMetricasWrap');
+  try {
+    const res = await fetch(`${API}/api/admin/mudancas-metricas`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    if (!data.mudancas || data.mudancas.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma mudança detectada nos últimos 30 dias.</div>';
+      return;
+    }
+    const rows = data.mudancas.map(m => `
+      <tr>
+        <td>${esc(m.clientName)}</td>
+        <td>${esc(m.analystEmail || '— sem analista —')}</td>
+        <td>${m.tipo === 'meta_roas' ? 'Meta de ROAS' : 'Preço do anúncio'}</td>
+        <td>${esc(m.rotulo)}</td>
+        <td>${m.valorAntes} → ${m.valorDepois}</td>
+        <td>${new Date(m.detectadoEm).toLocaleString('pt-BR')}</td>
+      </tr>
+    `).join('');
+    wrap.innerHTML = `
+      <table>
+        <thead><tr><th>Cliente</th><th>Analista</th><th>Tipo</th><th>Item</th><th>Antes → Depois</th><th>Detectado em</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar as mudanças.</div>';
+  }
+}
+
+// ---- Equipes (owner: cria e gerencia todas; admin: gerencia so a propria) ----
+async function criarEquipe() {
+  const name = document.getElementById('novaEquipeNome').value.trim();
+  const admin_id = document.getElementById('novaEquipeAdmin').value;
+  const msg = document.getElementById('criarEquipeMsg');
+  if (!name || !admin_id) { showToast('Escolha um nome e um gestor.'); return; }
+
+  const res = await fetch(`${API}/api/teams`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, admin_id }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    msg.style.color = 'var(--ok)';
+    msg.textContent = 'Equipe criada.';
+    document.getElementById('novaEquipeNome').value = '';
+    carregarEquipesOwner();
+  } else {
+    msg.style.color = 'var(--warn)';
+    msg.textContent = data.erro || 'Falha ao criar equipe.';
+  }
+}
+
+function montarSelectGestoresSemEquipe(gestoresSemEquipe, onAddFn) {
+  if (!gestoresSemEquipe || gestoresSemEquipe.length === 0) {
+    return '<span style="color:var(--muted); font-size:12px;">Nenhum analista disponivel (sem equipe) no momento.</span>';
+  }
+  const opcoes = gestoresSemEquipe.map(g => `<option value="${g.id}">${g.name || g.email}</option>`).join('');
+  const selectId = `sel_${Math.random().toString(36).slice(2)}`;
+  return `
+    <select id="${selectId}" class="name-input" style="width:auto; display:inline-block;">${opcoes}</select>
+    <button class="small" onclick="${onAddFn}(document.getElementById('${selectId}').value)">Adicionar</button>
+  `;
+}
+
+async function adicionarGestorEquipe(teamId, gestorId) {
+  if (!gestorId) return;
+  const res = await fetch(`${API}/api/teams/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team_id: teamId, gestor_id: gestorId, action: 'add' }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    showToast('Analista adicionado a equipe.');
+    if (usuarioAtual.role === 'owner') carregarEquipesOwner(); else carregarMinhaEquipe();
+  } else {
+    showToast(data.erro || 'Falha ao adicionar analista.');
+  }
+}
+
+async function removerGestorEquipe(teamId, gestorId) {
+  const res = await fetch(`${API}/api/teams/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team_id: teamId, gestor_id: gestorId, action: 'remove' }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    showToast('Analista removido da equipe.');
+    if (usuarioAtual.role === 'owner') carregarEquipesOwner(); else carregarMinhaEquipe();
+  } else {
+    showToast(data.erro || 'Falha ao remover analista.');
+  }
+}
+
+async function carregarEquipesOwner() {
+  const wrap = document.getElementById('listaEquipesWrap');
+  const selectAdmin = document.getElementById('novaEquipeAdmin');
+  try {
+    const res = await fetch(`${API}/api/teams`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+
+    selectAdmin.innerHTML = (data.adminsSemEquipe || []).length > 0
+      ? data.adminsSemEquipe.map(a => `<option value="${a.id}">${a.name || a.email}</option>`).join('')
+      : '<option value="">Nenhum gestor disponivel (todos ja coordenam uma equipe)</option>';
+
+    if (!data.teams || data.teams.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma equipe criada ainda.</div>';
+      return;
+    }
+
+    wrap.innerHTML = data.teams.map(t => `
+      <div class="log-item">
+        <b>${t.name}</b> — coordenada por ${t.admin ? (t.admin.name || t.admin.email) : '— sem gestor —'}
+        <div style="margin-top:6px;">
+          ${t.gestores.length === 0
+            ? '<span style="color:var(--muted); font-size:12px;">Nenhum analista nessa equipe ainda.</span>'
+            : t.gestores.map(g => `
+              <span class="badge" style="margin-right:6px;">
+                ${g.name || g.email}
+                <button class="small secondary" style="padding:1px 6px; margin-left:4px;" onclick="removerGestorEquipe('${t.id}', '${g.id}')">x</button>
+              </span>
+            `).join('')}
+        </div>
+        <div style="margin-top:8px;">${montarSelectGestoresSemEquipe(data.gestoresSemEquipe, `gestorParaEquipe_${t.id.replace(/[^a-z0-9]/gi, '')}`)}</div>
+      </div>
+    `).join('');
+
+    // registra uma funcao de callback por equipe (o onclick acima chama por nome global)
+    data.teams.forEach(t => {
+      window[`gestorParaEquipe_${t.id.replace(/[^a-z0-9]/gi, '')}`] = (gestorId) => adicionarGestorEquipe(t.id, gestorId);
+    });
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar equipes.</div>';
+  }
+}
+
+async function carregarMinhaEquipe() {
+  const wrap = document.getElementById('minhaEquipeWrap');
+  try {
+    const res = await fetch(`${API}/api/teams`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+
+    if (!data.team) {
+      wrap.innerHTML = '<div class="empty">Voce ainda nao coordena nenhuma equipe. Peca ao líder para criar uma para voce.</div>';
+      return;
+    }
+
+    document.getElementById('tituloMinhaEquipe').textContent = `Minha equipe — ${data.team.name}`;
+    const gestoresHtml = data.team.gestores.length === 0
+      ? '<div class="empty">Nenhum analista na sua equipe ainda.</div>'
+      : data.team.gestores.map(g => `
+          <span class="badge" style="margin-right:6px;">
+            ${g.name || g.email}
+            <button class="small secondary" style="padding:1px 6px; margin-left:4px;" onclick="removerGestorEquipe('${data.team.id}', '${g.id}')">x</button>
+          </span>
+        `).join('');
+
+    wrap.innerHTML = `
+      <div style="margin-bottom:10px;">${gestoresHtml}</div>
+      <div>${montarSelectGestoresSemEquipe(data.gestoresSemEquipe, 'gestorParaMinhaEquipe')}</div>
+    `;
+    window.gestorParaMinhaEquipe = (gestorId) => adicionarGestorEquipe(data.team.id, gestorId);
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar equipe.</div>';
+  }
+}
+
+// ---- Log de auditoria ----
+async function carregarLog() {
+  const wrap = document.getElementById('logWrap');
+  try {
+    const rota = usuarioAtual.role === 'owner' ? '/api/owner/audit-log' : '/api/admin/audit-log';
+    const res = await fetch(`${API}${rota}`);
+    if (!res.ok) { wrap.innerHTML = '<div class="empty">Sem acesso.</div>'; return; }
+    const data = await res.json();
+    if (!data.acoes || data.acoes.length === 0) {
+      wrap.innerHTML = '<div class="empty">Nenhuma acao registrada ainda.</div>';
+      return;
+    }
+    wrap.innerHTML = data.acoes.map(a => `
+      <div class="log-item">
+        <b>${esc(a.actorEmail)}</b> <span class="badge">${esc(rotuloPapel(a.actorRole))}</span>
+        — ${esc(a.action)}${a.target ? ` · ${esc(a.target)}` : ''}
+        <div>${new Date(a.ts).toLocaleString('pt-BR')}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    wrap.innerHTML = '<div class="empty">Erro ao carregar o log.</div>';
+  }
+}
+
+document.getElementById('btnGerar').addEventListener('click', gerarLink);
+document.getElementById('btnLogin').addEventListener('click', fazerLogin);
+document.getElementById('btnLogout').addEventListener('click', fazerLogout);
+document.getElementById('btnCriarUsuario').addEventListener('click', criarUsuario);
+document.getElementById('btnCriarTarefa').addEventListener('click', criarTarefa);
+document.getElementById('btnCriarEquipe').addEventListener('click', criarEquipe);
+document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') fazerLogin(); });
+
+document.getElementById('btnAddPerguntaTeste').addEventListener('click', adicionarPerguntaTesteLocal);
+document.getElementById('btnSalvarPerguntasTeste').addEventListener('click', salvarPerguntasTeste);
+document.getElementById('novaEtapaTipo').addEventListener('change', atualizarCamposPorTipoEtapa);
+document.getElementById('btnAddPerguntaEtapa').addEventListener('click', adicionarPerguntaEtapaLocal);
+document.getElementById('btnCriarEtapa').addEventListener('click', criarEtapaTutorial);
+document.getElementById('novaEtapaArquivo').addEventListener('change', (e) => {
+  if (e.target.files && e.target.files[0]) enviarArquivoVideoEtapa(e.target.files[0]);
+});
+atualizarCamposPorTipoEtapa();
+
+verificarSessaoInicial();
+
+// =====================================================================================
+// RELATORIOS (Fase 4) - analista (diario/semanal), gestor (clientes diario/semanal,
+// equipe semanal), lider (mensal). Ver lib/reportEngine.js no backend.
+// =====================================================================================
+
+function fmtR(v, unit) {
+  if (v === null || v === undefined) return '—';
+  if (unit === 'R$') return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  if (unit === '%') return v.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + '%';
+  if (unit === 'h') return v.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'h';
+  if (unit === 'x') return v.toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + 'x';
+  return Math.round(v).toLocaleString('pt-BR');
+}
+function rNiceTicks(min, max, count) {
+  if (min === max) { min -= 1; max += 1; }
+  if (min > 0) min = 0;
+  const range = max - min;
+  const rough = range / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(rough || 1)));
+  const norm = rough / mag;
+  let step;
+  if (norm < 1.5) step = mag; else if (norm < 3) step = 2 * mag; else if (norm < 7) step = 5 * mag; else step = 10 * mag;
+  const niceMin = Math.floor(min / step) * step;
+  const niceMax = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let t = niceMin; t <= niceMax + step * 0.001; t += step) ticks.push(Math.round(t * 1000) / 1000);
+  return ticks;
+}
+function rRenderLine(container, opts) {
+  const series = (opts.series || []).filter((s) => s.values.some((v) => v !== null && v !== undefined));
+  const xLabels = opts.xLabels, unit = opts.unit || '', height = opts.height || 220;
+  if (series.length === 0) { container.innerHTML = '<div class="r-empty">Sem dados suficientes ainda.</div>'; return; }
+  const w = container.clientWidth || 560, h = height;
+  const padL = 70, padR = 78, padT = 24, padB = 30;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const allVals = series.reduce((a, s) => a.concat(s.values.filter((v) => v !== null && v !== undefined)), []);
+  const ticks = rNiceTicks(Math.min(...allVals), Math.max(...allVals), 4);
+  const yMin = ticks[0], yMax = ticks[ticks.length - 1];
+  const xForI = (i) => padL + (xLabels.length > 1 ? (i / (xLabels.length - 1)) * plotW : plotW / 2);
+  const yForV = (v) => padT + plotH - ((v - yMin) / ((yMax - yMin) || 1)) * plotH;
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="display:block; overflow:visible;">`;
+  ticks.forEach((t) => {
+    const y = yForV(t);
+    svg += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${w - padR}" y2="${y.toFixed(1)}" stroke="#e1e0d9" stroke-width="1" />`;
+    svg += `<text x="${padL - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#898781">${fmtR(t, unit)}</text>`;
+  });
+  const xStep = Math.max(1, Math.ceil(xLabels.length / 7));
+  xLabels.forEach((lb, i) => {
+    if (i % xStep !== 0 && i !== xLabels.length - 1) return;
+    svg += `<text x="${xForI(i).toFixed(1)}" y="${h - 8}" text-anchor="middle" font-size="11" fill="#898781">${esc(lb)}</text>`;
+  });
+  series.forEach((s) => {
+    const pts = s.values.map((v, i) => (v === null || v === undefined) ? null : `${xForI(i).toFixed(1)},${yForV(v).toFixed(1)}`).filter(Boolean).join(' ');
+    svg += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+    const validIdx = [...s.values.keys()].filter((i) => s.values[i] !== null && s.values[i] !== undefined);
+    const lastI = validIdx[validIdx.length - 1];
+    if (lastI !== undefined) {
+      const lx = xForI(lastI), ly = yForV(s.values[lastI]);
+      svg += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="4" fill="${s.color}" stroke="#fcfcfb" stroke-width="2" />`;
+      svg += `<text x="${(lx + 8).toFixed(1)}" y="${(ly + 4).toFixed(1)}" font-size="11.5" font-weight="600" fill="#0b0b0b">${fmtR(s.values[lastI], unit)}</text>`;
+    }
+  });
+  svg += `<rect class="r-overlay" x="${padL}" y="${padT}" width="${plotW}" height="${plotH}" fill="transparent" />`;
+  svg += `</svg>`;
+  container.innerHTML = svg;
+  if (series.length > 1) {
+    const legend = document.createElement('div');
+    legend.className = 'r-legend';
+    legend.innerHTML = series.map((s) => `<span class="k"><span class="sw" style="background:${s.color}"></span>${esc(s.name)}</span>`).join('');
+    container.appendChild(legend);
+  }
+}
+function rRenderBar(container, opts) {
+  const items = (opts.items || []).filter((i) => typeof i.value === 'number');
+  const unit = opts.unit || '';
+  if (items.length === 0) { container.innerHTML = '<div class="r-empty">Sem dados ainda.</div>'; return; }
+  const w = container.clientWidth || 560;
+  const barH = 20, gap = 18;
+  const h = items.length * (barH + gap) + 26;
+  const padL = opts.padL || 150, padR = 70, padT = 8;
+  const plotW = w - padL - padR;
+  const maxV = Math.max(...items.map((i) => i.value), 0.0001) * 1.18;
+  const ticks = rNiceTicks(0, maxV, 4);
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" style="display:block; overflow:visible;">`;
+  ticks.forEach((t) => {
+    const x = padL + (t / maxV) * plotW;
+    svg += `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${h - 20}" stroke="#e1e0d9" stroke-width="1" />`;
+    svg += `<text x="${x.toFixed(1)}" y="${h - 6}" text-anchor="middle" font-size="10.5" fill="#898781">${fmtR(t, unit)}</text>`;
+  });
+  items.forEach((it, i) => {
+    const y = padT + i * (barH + gap);
+    const bw = Math.max(2, (it.value / maxV) * plotW);
+    svg += `<text x="${padL - 10}" y="${y + barH / 2 + 4}" text-anchor="end" font-size="12.5" fill="#52514e">${esc(it.label)}</text>`;
+    svg += `<rect x="${padL}" y="${y}" width="${bw.toFixed(1)}" height="${barH}" rx="4" fill="${it.color || '#2a78d6'}" />`;
+    svg += `<text x="${(padL + bw + 8).toFixed(1)}" y="${y + barH / 2 + 4}" font-size="12.5" font-weight="600" fill="#0b0b0b">${fmtR(it.value, unit)}</text>`;
+  });
+  svg += `</svg>`;
+  container.innerHTML = svg;
+}
+
+function rModoBadgeClass(modo) {
+  if (modo === 'escala') return 'good';
+  if (modo === 'otimizacao') return 'warn';
+  if (modo === 'atencao') return 'serious';
+  return 'crit';
+}
+
+let relatorioRoleAtual = null;
+let relatorioAbaAtual = null;
+
+function iniciarRelatorios() {
+  if (!usuarioAtual) return;
+  const tabsWrap = document.getElementById('relatorioTabsWrap');
+  let abas = [];
+  if (usuarioAtual.role === 'analyst') {
+    abas = [
+      { id: 'analista_diario', label: 'Diário' },
+      { id: 'analista_semanal', label: 'Semanal' },
+    ];
+  } else if (usuarioAtual.role === 'admin') {
+    abas = [
+      { id: 'gestor_clientes_diario', label: 'Clientes (diário)' },
+      { id: 'gestor_clientes_semanal', label: 'Clientes (semanal)' },
+      { id: 'gestor_equipe', label: 'Minha equipe (semanal)' },
+    ];
+  } else {
+    abas = [{ id: 'lider_mensal', label: 'Auditoria mensal' }];
+  }
+
+  tabsWrap.innerHTML = `<div class="relatorio-embed" style="padding:0; background:transparent;"><div class="r-tabs">${
+    abas.map((a) => `<div class="r-tab" data-aba="${a.id}">${esc(a.label)}</div>`).join('')
+  }</div></div>`;
+
+  tabsWrap.querySelectorAll('.r-tab').forEach((el) => {
+    el.addEventListener('click', () => carregarRelatorio(el.getAttribute('data-aba')));
+  });
+
+  carregarRelatorio(abas[0].id);
+}
+
+async function carregarRelatorio(abaId) {
+  relatorioAbaAtual = abaId;
+  document.querySelectorAll('#relatorioTabsWrap .r-tab').forEach((el) => {
+    el.classList.toggle('active', el.getAttribute('data-aba') === abaId);
+  });
+  const conteudo = document.getElementById('relatorioConteudo');
+  conteudo.innerHTML = '<div class="empty">Carregando...</div>';
+
+  try {
+    let dados, render;
+    if (abaId === 'analista_diario') { dados = await (await fetch(`${API}/api/reports/analista?period=diario`)).json(); render = renderRelatorioAnalista; }
+    else if (abaId === 'analista_semanal') { dados = await (await fetch(`${API}/api/reports/analista?period=semanal`)).json(); render = renderRelatorioAnalista; }
+    else if (abaId === 'gestor_clientes_diario') { dados = await (await fetch(`${API}/api/reports/gestor-clientes?period=diario`)).json(); render = renderRelatorioGestorClientes; }
+    else if (abaId === 'gestor_clientes_semanal') { dados = await (await fetch(`${API}/api/reports/gestor-clientes?period=semanal`)).json(); render = renderRelatorioGestorClientes; }
+    else if (abaId === 'gestor_equipe') { dados = await (await fetch(`${API}/api/reports/gestor-equipe`)).json(); render = renderRelatorioGestorEquipe; }
+    else { dados = await (await fetch(`${API}/api/reports/lider`)).json(); render = renderRelatorioLider; }
+
+    conteudo.innerHTML = '<div class="relatorio-embed" id="relatorioRoot"></div>';
+    render(document.getElementById('relatorioRoot'), dados);
+  } catch (e) {
+    conteudo.innerHTML = '<div class="empty">Erro ao carregar o relatório.</div>';
+  }
+}
+
+function statTile(id, label, value, delta) {
+  return `<div class="r-tile" data-toggle="${id}"><div class="r-label">${esc(label)}</div><div class="r-value">${value}</div>${delta ? `<div class="r-delta">${esc(delta)}</div>` : ''}</div>`;
+}
+
+function wireToggles(root) {
+  root.querySelectorAll('[data-toggle]').forEach((tile) => {
+    tile.addEventListener('click', () => {
+      const target = root.querySelector(`#${CSS.escape(tile.getAttribute('data-toggle'))}`);
+      if (!target) return;
+      const isOpen = target.classList.contains('open');
+      root.querySelectorAll('.r-panel.open').forEach((p) => p.classList.remove('open'));
+      root.querySelectorAll('.r-tile.active').forEach((t) => t.classList.remove('active'));
+      if (!isOpen) { target.classList.add('open'); tile.classList.add('active'); }
+    });
+  });
+}
+
+function contaCard(conta) {
+  const modo = conta.modo_label ? `<span class="r-badge ${rModoBadgeClass(conta.modo)}">${esc(conta.modo_label)}</span>` : '';
+  const raiox = conta.raiox || {};
+  const linhas = [
+    raiox.faturamento != null ? `<tr><td>Faturamento</td><td>${fmtR(raiox.faturamento, 'R$')}</td></tr>` : '',
+    raiox.roas != null ? `<tr><td>ROAS</td><td>${fmtR(raiox.roas, 'x')}</td></tr>` : '',
+    raiox.acos != null ? `<tr><td>ACOS</td><td>${fmtR(raiox.acos, '%')}</td></tr>` : '',
+    raiox.conversao != null ? `<tr><td>Conversão</td><td>${fmtR(raiox.conversao, '%')}</td></tr>` : '',
+    raiox.margem != null ? `<tr><td>Margem</td><td>${fmtR(raiox.margem, '%')}</td></tr>` : '',
+    raiox.estoque_dias != null ? `<tr><td>Cobertura de estoque</td><td>${raiox.estoque_dias} dias</td></tr>` : '',
+  ].join('');
+
+  const recs = (conta.recomendacoes || []).map((r) => `
+    <li>
+      <div><strong>${esc(r.titulo)}</strong></div>
+      <div style="color:var(--r-text2); font-size:12px; margin:2px 0 6px;">${esc(r.porque)}</div>
+      ${r.tarefa ? `<span class="r-task-badge">${r.tarefa.ja_existia ? 'Já era uma tarefa pendente' : 'Adicionada à lista de tarefas'}${r.tarefa.prazo_label ? ' — ' + esc(r.tarefa.prazo_label) : ''}</span>` : ''}
+    </li>
+  `).join('');
+
+  return `
+    <div class="r-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+        <strong>${esc(conta.nome)}${conta.analista ? ` <span style="font-weight:400; color:var(--r-text2); font-size:12px;">— ${esc(conta.analista.nome)}</span>` : ''}</strong>
+        ${modo}
+      </div>
+      ${linhas ? `<table>${linhas}</table>` : '<div class="r-empty">Ainda sem raio-x registrado hoje para esta conta.</div>'}
+      ${recs ? `<div class="r-ia"><div class="r-ia-head">IA — recomendações (Manual do Gestor)</div><ol>${recs}</ol></div>` : ''}
+    </div>
+  `;
+}
+
+function renderRelatorioAnalista(root, dados) {
+  const diario = dados.tipo === 'analista_diario';
+  const stats = diario
+    ? `<div class="r-stat-row">
+        ${statTile('p-contas', 'Contas', dados.contas.length, null)}
+        ${statTile('p-tarefas', 'Tarefas pendentes', dados.tarefas_pendentes.length, null)}
+      </div>`
+    : `<div class="r-stat-row">
+        ${statTile('p-contas', 'Contas', dados.contas.length, null)}
+        ${statTile('p-tarefas', `Tarefas concluídas`, dados.tarefas_concluidas_semana + ' / ' + dados.tarefas_totais_semana, null)}
+        ${statTile('p-mudancas', 'Mudanças na semana', dados.mudancas_semana.length, null)}
+        ${statTile('p-rotina', 'Aderência à rotina', dados.rotina.feitos + ' / ' + dados.rotina.total, null)}
+      </div>`;
+
+  const rotinaHtml = !diario ? `
+    <div class="r-panel" id="p-rotina">
+      <h3 style="margin-top:0;">Rotina da semana (Manual do Gestor, seção 9)</h3>
+      ${dados.rotina.semana.map((d) => `
+        <div class="r-rotina-item">
+          <span>${esc(d.label)} ${d.atraso ? '<span style="color:var(--r-warn);">(marcado em atraso)</span>' : ''}</span>
+          ${d.feito
+            ? `<span class="r-badge good">Feito</span>`
+            : (usuarioAtual.role === 'analyst' ? `<button class="small" onclick="marcarRotina('${d.dia}')">Marcar como feito</button>` : `<span class="r-badge crit">Pendente</span>`)}
+        </div>
+      `).join('')}
+    </div>` : '';
+
+  const mudancasHtml = !diario ? `
+    <div class="r-panel" id="p-mudancas">
+      <h3 style="margin-top:0;">Mudanças de preço/ROAS na semana</h3>
+      ${dados.mudancas_semana.length === 0 ? '<div class="r-empty">Nenhuma mudança detectada.</div>' : `
+        <table><thead><tr><th>Cliente</th><th>Item</th><th>Antes → Depois</th><th>Detectado em</th></tr></thead><tbody>
+        ${dados.mudancas_semana.map((m) => `<tr><td>${esc(m.clientName)}</td><td>${esc(m.rotulo)}</td><td>${m.valorAntes} → ${m.valorDepois}</td><td>${new Date(m.detectadoEm).toLocaleString('pt-BR')}</td></tr>`).join('')}
+        </tbody></table>`}
+    </div>` : '';
+
+  const tarefasHtml = diario ? `
+    <div class="r-panel" id="p-tarefas">
+      <h3 style="margin-top:0;">Tarefas pendentes</h3>
+      ${dados.tarefas_pendentes.length === 0 ? '<div class="r-empty">Nenhuma tarefa pendente.</div>' : dados.tarefas_pendentes.map((t) => `
+        <div class="r-rotina-item"><span>${esc(t.description)}</span><span style="color:var(--r-text2); font-size:12px;">${t.dias_pendente > 0 ? `pendente há ${t.dias_pendente} dia(s)` : 'criada hoje'}</span></div>
+      `).join('')}
+    </div>` : '';
+
+  root.innerHTML = `
+    <div style="font-size:12px; color:var(--r-text2); margin-bottom:12px;">
+      ${diario ? 'Relatório diário' : `Relatório semanal (${esc(dados.semana)})`} · ${esc(dados.analista ? dados.analista.nome : '')}
+    </div>
+    ${stats}
+    ${rotinaHtml}${mudancasHtml}${tarefasHtml}
+    <h3>Minhas contas</h3>
+    ${dados.contas.length === 0 ? '<div class="r-empty">Nenhuma conta atribuída a você ainda.</div>' : dados.contas.map(contaCard).join('')}
+  `;
+  wireToggles(root);
+}
+
+function renderRelatorioGestorClientes(root, dados) {
+  root.innerHTML = `
+    <div style="font-size:12px; color:var(--r-text2); margin-bottom:12px;">
+      Relatório ${dados.periodo} · ${esc(dados.equipe ? dados.equipe.nome : 'sem equipe configurada')}
+    </div>
+    <div class="r-stat-row">
+      ${statTile('p-contas', 'Contas na equipe', dados.contas.length, null)}
+      ${statTile('p-mudancas', 'Mudanças detectadas', dados.mudancas.length, null)}
+    </div>
+    <div class="r-panel" id="p-mudancas">
+      <h3 style="margin-top:0;">Mudanças de preço/ROAS</h3>
+      ${dados.mudancas.length === 0 ? '<div class="r-empty">Nenhuma mudança detectada no período.</div>' : `
+        <table><thead><tr><th>Cliente</th><th>Item</th><th>Antes → Depois</th><th>Detectado em</th></tr></thead><tbody>
+        ${dados.mudancas.map((m) => `<tr><td>${esc(m.clientName)}</td><td>${esc(m.rotulo)}</td><td>${m.valorAntes} → ${m.valorDepois}</td><td>${new Date(m.detectadoEm).toLocaleString('pt-BR')}</td></tr>`).join('')}
+        </tbody></table>`}
+    </div>
+    <h3>Raio-X por cliente</h3>
+    ${dados.contas.length === 0 ? '<div class="r-empty">Nenhum cliente atribuído a analistas desta equipe ainda.</div>' : dados.contas.map(contaCard).join('')}
+  `;
+  wireToggles(root);
+}
+
+function renderRelatorioGestorEquipe(root, dados) {
+  const rows = dados.analistas.map((a) => `
+    <tr>
+      <td><strong>${esc(a.nome)}</strong></td>
+      <td>${a.clientes}</td>
+      <td>${a.tarefas_concluidas_semana} / ${a.tarefas_totais_semana}</td>
+      <td>${a.mudancas_semana}</td>
+      <td>${a.rotina.feitos} / ${a.rotina.total}</td>
+    </tr>
+  `).join('');
+
+  root.innerHTML = `
+    <div style="font-size:12px; color:var(--r-text2); margin-bottom:12px;">
+      Relatório semanal da equipe (${esc(dados.semana)}) · ${esc(dados.equipe ? dados.equipe.nome : 'sem equipe configurada')}
+    </div>
+    <div class="r-stat-row">
+      ${statTile('p-analistas', 'Analistas', dados.analistas.length, null)}
+      ${statTile('p-mudancas-eq', 'Mudanças na semana', dados.mudancas_semana.length, null)}
+    </div>
+    <div class="r-panel" id="p-mudancas-eq">
+      <h3 style="margin-top:0;">Mudanças por analista</h3>
+      ${(() => { const rB = document.createElement('div'); rRenderBar(rB, { items: dados.analistas.map((a) => ({ label: a.nome, value: a.mudancas_semana, color: '#2a78d6' })) }); return rB.outerHTML; })()}
+    </div>
+    <h3>Analistas da equipe — comparativo da semana</h3>
+    ${dados.analistas.length === 0 ? '<div class="r-empty">Nenhum analista nesta equipe ainda.</div>' : `
+      <table>
+        <thead><tr><th>Analista</th><th>Clientes</th><th>Tarefas concluídas</th><th>Mudanças feitas</th><th>Aderência à rotina</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `}
+  `;
+  wireToggles(root);
+}
+
+function renderRelatorioLider(root, dados) {
+  const rows = dados.equipes.map((e) => `
+    <tr>
+      <td>${esc(e.nome)}</td>
+      <td>${esc(e.gestor ? e.gestor.nome : '—')}</td>
+      <td>${e.analistas}</td>
+      <td>${e.clientes}</td>
+      <td>${fmtR(e.faturamento_mes, 'R$')}</td>
+      <td>${e.tarefas_concluidas_pct != null ? e.tarefas_concluidas_pct + '%' : '—'}</td>
+      <td>${e.contas_atencao_protecao > 0 ? `<span class="r-badge serious">${e.contas_atencao_protecao} conta(s)</span>` : `<span class="r-badge good">0 contas</span>`}</td>
+    </tr>
+  `).join('');
+
+  const escalonamentos = dados.equipes.flatMap((e) => e.escalonamentos_abertos.map((esc_) => ({ ...esc_, equipe: e.nome, gestor: e.gestor?.nome })));
+
+  root.innerHTML = `
+    <div style="font-size:12px; color:var(--r-text2); margin-bottom:12px;">Auditoria mensal · ${esc(dados.mes)}</div>
+    <div class="r-stat-row">
+      ${statTile('p-fat', 'Faturamento total', fmtR(dados.faturamento_total, 'R$'), null)}
+      ${statTile('p-equipes', 'Equipes', dados.equipes.length, null)}
+      ${statTile('p-escal', 'Escalonamentos em aberto', dados.escalonamentos_abertos_total, null)}
+    </div>
+    <div class="r-panel" id="p-fat">
+      <h3 style="margin-top:0;">Faturamento por equipe (mês)</h3>
+      ${(() => { const rB = document.createElement('div'); rRenderBar(rB, { items: dados.equipes.map((e) => ({ label: e.nome, value: e.faturamento_mes, color: '#2a78d6' })) }); return rB.outerHTML; })()}
+    </div>
+    <div class="r-panel" id="p-equipes">
+      <h3 style="margin-top:0;">Contas por modo, por equipe</h3>
+      ${dados.equipes.map((e) => `<div style="margin-bottom:6px; font-size:13px;"><strong>${esc(e.nome)}</strong>: Escala ${e.contas_por_modo.escala || 0} · Otimização ${e.contas_por_modo.otimizacao || 0} · Atenção ${e.contas_por_modo.atencao || 0} · Proteção ${e.contas_por_modo.protecao || 0}</div>`).join('')}
+    </div>
+    <div class="r-panel" id="p-escal">
+      <h3 style="margin-top:0;">Escalonamentos ainda em aberto (pendentes há mais de 7 dias)</h3>
+      ${escalonamentos.length === 0 ? '<div class="r-empty">Nenhum escalonamento em aberto.</div>' : escalonamentos.map((e) => `
+        <div class="r-rotina-item"><span><strong>${esc(e.cliente)}</strong> (${esc(e.equipe)}, gestor ${esc(e.gestor || '—')}) — ${esc(e.descricao)}</span><span class="r-badge serious">${e.dias_pendente} dias em aberto</span></div>
+      `).join('')}
+    </div>
+    <h3>Ranking das equipes (mês)</h3>
+    ${dados.equipes.length === 0 ? '<div class="r-empty">Nenhuma equipe criada ainda.</div>' : `
+      <table>
+        <thead><tr><th>Equipe</th><th>Gestor</th><th>Analistas</th><th>Clientes</th><th>Faturamento</th><th>Tarefas concluídas</th><th>Atenção/Proteção</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `}
+  `;
+  wireToggles(root);
+}
+
+async function marcarRotina(dia) {
+  const res = await fetch(`${API}/api/rotina`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dia }),
+  });
+  if (res.ok) {
+    showToast('Item da rotina marcado como feito.');
+    carregarRelatorio(relatorioAbaAtual);
+  } else {
+    showToast('Não foi possível marcar esse item.');
+  }
+}
+</script>
+</body>
+</html>
