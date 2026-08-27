@@ -88,12 +88,11 @@ module.exports = async (req, res) => {
     res.status(404).json({
       erro: 'Rota nao encontrada.',
       debug_key: key,
-      debug_key_length: key.length,
-      debug_key_charcodes: Array.from(key).map((c) => c.charCodeAt(0)),
-      debug_slugParam: slugParam,
+      debug_slugParam: slugParam === undefined ? 'UNDEFINED' : slugParam,
+      debug_req_url: req.url,
+      debug_req_method: req.method,
+      debug_query_completa: JSON.stringify(req.query),
       debug_total_rotas_cadastradas: Object.keys(routes).length,
-      debug_rota_me_existe: Object.prototype.hasOwnProperty.call(routes, 'me'),
-      debug_rota_login_existe: Object.prototype.hasOwnProperty.call(routes, 'login'),
     });
     return;
   }
