@@ -91,8 +91,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const handler = loadHandler();
   try {
+    const handler = loadHandler();
     return await handler(req, res);
   } catch (e) {
     // DEBUG TEMPORARIO: mostra o erro real em vez de uma tela generica.
