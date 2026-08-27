@@ -443,7 +443,7 @@ async function mostrarPainel() {
   document.getElementById('painel').style.display = 'block';
 
   const meRes = await fetch(`${API}/api/me`);
-  if (meRes.status === 401) { mostrarLogin(); return; }
+  if (!meRes.ok) { mostrarLogin(); return; }
   usuarioAtual = await meRes.json();
 
   const admin = isAdminOuOwner();
@@ -892,10 +892,10 @@ async function fazerLogout() {
 async function verificarSessaoInicial() {
   try {
     const res = await fetch(`${API}/api/me`);
-    if (res.status === 401) {
-      mostrarLogin();
-    } else {
+    if (res.ok) {
       mostrarPainel();
+    } else {
+      mostrarLogin();
     }
   } catch (e) {
     mostrarLogin();
