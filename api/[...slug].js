@@ -77,23 +77,17 @@ const routes = {
 const ROTAS_PUBLICAS = new Set(['candidatos/perguntas', 'candidatos/inscrever']);
 
 module.exports = async (req, res) => {
-  const slugParam = req.query.slug;
+  // Em alguns ambientes de deploy, o parametro de rota "pega-tudo" do arquivo
+  // [...slug].js chega em req.query com a chave "slug" (o normal), mas em
+  // outros chega com a chave literal "...slug" (com os tres pontos inclusos).
+  // Aceitamos os dois formatos para nao depender desse detalhe do provedor.
+  const slugParam = req.query.slug !== undefined ? req.query.slug : req.query['...slug'];
   const slugArr = Array.isArray(slugParam) ? slugParam : (slugParam ? [slugParam] : []);
   const key = slugArr.join('/');
 
   const loadHandler = routes[key];
   if (!loadHandler) {
-    // DEBUG TEMPORARIO: isso e so para descobrir por que a rota nao bate.
-    // Assim que resolvermos o problema, removemos este bloco de novo.
-    res.status(404).json({
-      erro: 'Rota nao encontrada.',
-      debug_key: key,
-      debug_slugParam: slugParam === undefined ? 'UNDEFINED' : slugParam,
-      debug_req_url: req.url,
-      debug_req_method: req.method,
-      debug_query_completa: JSON.stringify(req.query),
-      debug_total_rotas_cadastradas: Object.keys(routes).length,
-    });
+    res.status(404).json({ erro: 'Rota nao encontrada.' });
     return;
   }
 
