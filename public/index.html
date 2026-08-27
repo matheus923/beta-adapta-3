@@ -874,10 +874,11 @@ async function fazerLogin() {
     if (res.ok) {
       mostrarPainel();
     } else {
-      showToast(data.erro || 'Falha ao entrar.');
+      // DEBUG TEMPORARIO: mostra a resposta completa do servidor, nao so o campo "erro".
+      showToast('DEBUG: ' + JSON.stringify(data));
     }
   } catch (e) {
-    showToast('Erro ao entrar.');
+    showToast('Erro ao entrar (excecao no navegador): ' + (e && e.message));
   } finally {
     btn.disabled = false;
   }
