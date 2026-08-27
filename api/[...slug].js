@@ -83,7 +83,18 @@ module.exports = async (req, res) => {
 
   const loadHandler = routes[key];
   if (!loadHandler) {
-    res.status(404).json({ erro: 'Rota nao encontrada.' });
+    // DEBUG TEMPORARIO: isso e so para descobrir por que a rota nao bate.
+    // Assim que resolvermos o problema, removemos este bloco de novo.
+    res.status(404).json({
+      erro: 'Rota nao encontrada.',
+      debug_key: key,
+      debug_key_length: key.length,
+      debug_key_charcodes: Array.from(key).map((c) => c.charCodeAt(0)),
+      debug_slugParam: slugParam,
+      debug_total_rotas_cadastradas: Object.keys(routes).length,
+      debug_rota_me_existe: Object.prototype.hasOwnProperty.call(routes, 'me'),
+      debug_rota_login_existe: Object.prototype.hasOwnProperty.call(routes, 'login'),
+    });
     return;
   }
 
