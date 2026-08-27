@@ -92,5 +92,17 @@ module.exports = async (req, res) => {
   }
 
   const handler = loadHandler();
-  return handler(req, res);
+  try {
+    return await handler(req, res);
+  } catch (e) {
+    // DEBUG TEMPORARIO: mostra o erro real em vez de uma tela generica.
+    // Assim que resolvermos, removemos este bloco de novo.
+    if (!res.headersSent) {
+      res.status(500).json({
+        erro: 'Erro interno.',
+        debug_mensagem: e && e.message,
+        debug_stack: e && e.stack,
+      });
+    }
+  }
 };
